@@ -45,3 +45,19 @@ final todosProvider = StateProvider<List<Todo>>((ref) {
     ),
   ];
 });
+
+final filteredTodosProvider = Provider<List<Todo>>((ref) {
+  final selectedFilter = ref.watch(todoFilterProvider);
+  final todos = ref.watch(todosProvider);
+
+  switch (selectedFilter) {
+    case TodoFilter.all:
+      return todos;
+
+    case TodoFilter.completed:
+      return todos.where((element) => element.done).toList();
+
+    case TodoFilter.pending:
+      return todos.where((element) => !element.done).toList();
+  }
+});

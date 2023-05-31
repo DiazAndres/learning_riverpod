@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:riverpod_example/config/config.dart';
+import 'package:riverpod_example/domain/domain.dart';
 import 'package:riverpod_example/presentation/providers/providers.dart';
 
-class TodoScreen extends StatelessWidget {
+class TodoScreen extends ConsumerWidget {
   const TodoScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('State Provider + Providers'),
@@ -14,7 +16,15 @@ class TodoScreen extends StatelessWidget {
       body: const _TodoView(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () {},
+        onPressed: () {
+          ref.read(todosProvider.notifier).update((state) => [
+                ...state,
+                Todo(
+                    id: uuid.v4(),
+                    description: RandomGenerator.getRandomName(),
+                    completedAt: null)
+              ]);
+        },
       ),
     );
   }
@@ -26,7 +36,9 @@ class _TodoView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentFilter = ref.watch(todoFilterProvider);
-    final todos = ref.watch(todosProvider);
+    // final todos = ref.watch(todosProvider);
+    final todos = ref.watch(filteredTodosProvider);
+
 
     return Column(
       children: [
@@ -44,7 +56,10 @@ class _TodoView extends ConsumerWidget {
           ],
           selected: <TodoFilter>{currentFilter},
           onSelectionChanged: (value) {
-            ref.read(todoFilterProvider.notifier).state = value.first;
+            // ref.read(todoFilterProvider.notifier).state = value.first;
+            ref
+                .read(todoFilterProvider.notifier)
+                .update((state) => state = value.first);
           },
         ),
         const SizedBox(height: 5),
